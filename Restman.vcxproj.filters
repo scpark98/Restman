@@ -1,0 +1,231 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{7a375fea-45df-4cbe-853a-bc69a5198bc1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\SCMenuBar">
+      <UniqueIdentifier>{000fa544-6913-4f7f-ae72-78d46293ed95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\VtListCtrlEx">
+      <UniqueIdentifier>{9db47486-710c-4081-ab16-8a85ff5db2b0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Restman.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="RestmanDlg.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\CMenu\SCMenuBar\SCMenuBar.h">
+      <Filter>Common\SCMenuBar</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\CMenu\SCMenuBar\SCMenuButton.h">
+      <Filter>Common\SCMenuBar</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\CMenu\SCMenuBar\SCMenu.h">
+      <Filter>Common\SCMenuBar</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\ResizeCtrl.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\colors.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\ControlSplitter.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Functions.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\GdiplusBitmap.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\MemoryDC.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\CButton\GdiButton\GdiButton.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\CListCtrl\CVtListCtrlEx\HeaderCtrlEx.h">
+      <Filter>Common\VtListCtrlEx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\CListCtrl\CVtListCtrlEx\list_data.h">
+      <Filter>Common\VtListCtrlEx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\CListCtrl\CVtListCtrlEx\VtListCtrlEx.h">
+      <Filter>Common\VtListCtrlEx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\CProgressCtrl\MacProgressCtrl\MacProgressCtrl.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\CStatic\SCStatic\SCStatic.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\CTreeCtrl\SCTreeCtrl\SCTreeCtrl.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Json\rapid_json\json.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\log\SCLog\SCLog.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\network\Ping\SCPing\SCPing.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\system\ShellImageList\ShellImageList.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\ui\theme\theme.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\ui\theme\ThemeLib.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\ui\ExtWndShadow\ExtWndShadow.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\CEdit\SCEdit\SCEdit.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\CComboBox\SCComboBox\SCComboBox.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Restman.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="RestmanDlg.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\CMenu\SCMenuBar\SCMenuBar.cpp">
+      <Filter>Common\SCMenuBar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\CMenu\SCMenuBar\SCMenuButton.cpp">
+      <Filter>Common\SCMenuBar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\CMenu\SCMenuBar\SCMenu.cpp">
+      <Filter>Common\SCMenuBar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\ResizeCtrl.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\colors.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\ControlSplitter.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Functions.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\GdiplusBitmap.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\CButton\GdiButton\GdiButton.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\CListCtrl\CVtListCtrlEx\list_data.cpp">
+      <Filter>Common\VtListCtrlEx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\CListCtrl\CVtListCtrlEx\VtListCtrlEx.cpp">
+      <Filter>Common\VtListCtrlEx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\CListCtrl\CVtListCtrlEx\HeaderCtrlEx.cpp">
+      <Filter>Common\VtListCtrlEx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\CProgressCtrl\MacProgressCtrl\MacProgressCtrl.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\CStatic\SCStatic\SCStatic.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\CTreeCtrl\SCTreeCtrl\SCTreeCtrl.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Json\rapid_json\json.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\log\SCLog\SCLog.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\network\Ping\SCPing\SCPing.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\system\ShellImageList\ShellImageList.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\ui\theme\theme.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\ui\ExtWndShadow\ExtWndShadow.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\CEdit\SCEdit\SCEdit.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\CComboBox\SCComboBox\SCComboBox.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Restman.rc">
+      <Filter>리소스 파일</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\Restman.rc2">
+      <Filter>리소스 파일</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\Restman.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="res\images\folder.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="res\images\folder_collapsed.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="res\images\folder_expanded.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="res\images\empty.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="readme.txt" />
+  </ItemGroup>
+</Project>
