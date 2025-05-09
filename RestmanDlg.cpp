@@ -115,6 +115,9 @@ BOOL CRestmanDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
+	//CRequestUrlParams param(_T("admin.linkmemine.com"), 443, _T("lmm/api/v1.0/"));
+	//request_url(&param);
+
 	m_resize.Create(this);
 	m_resize.Add(IDC_TREE_API, 0, 0, 0, 100);
 	m_resize.Add(IDC_SPLITTER, 0, 0, 0, 100);
@@ -141,7 +144,7 @@ BOOL CRestmanDlg::OnInitDialog()
 	m_edit_url.set_text_color(Gdiplus::Color::RoyalBlue);
 	m_edit_url.set_back_color(Gdiplus::Color::White);
 	m_edit_url.set_line_align(DT_BOTTOM);
-	m_edit_url.set_auto_font_size(true, 0.69f);
+	m_edit_url.set_auto_font_size(true, 0.60f);
 	m_edit_url.set_dim_text(_T("Input Url here..."));
 
 	m_list_params.SetExtendedStyle(LVS_EX_GRIDLINES | LVS_EX_FLATSB);
