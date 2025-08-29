@@ -31,12 +31,14 @@ CRestmanApp::CRestmanApp()
 // 유일한 CRestmanApp 개체입니다.
 
 CRestmanApp theApp;
-
+CSCLog gLog;
 
 // CRestmanApp 초기화
 
 BOOL CRestmanApp::InitInstance()
 {
+	gLog.write_start_log();
+
 	// 애플리케이션 매니페스트가 ComCtl32.dll 버전 6 이상을 사용하여 비주얼 스타일을
 	// 사용하도록 지정하는 경우, Windows XP 상에서 반드시 InitCommonControlsEx()가 필요합니다.
 	// InitCommonControlsEx()를 사용하지 않으면 창을 만들 수 없습니다.
@@ -66,7 +68,7 @@ BOOL CRestmanApp::InitInstance()
 	// 해당 설정이 저장된 레지스트리 키를 변경하십시오.
 	// TODO: 이 문자열을 회사 또는 조직의 이름과 같은
 	// 적절한 내용으로 수정해야 합니다.
-	SetRegistryKey(_T("로컬 애플리케이션 마법사에서 생성된 애플리케이션"));
+	SetRegistryKey(_T("Legends Software"));
 
 	CRestmanDlg dlg;
 	m_pMainWnd = &dlg;

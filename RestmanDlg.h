@@ -12,6 +12,26 @@
 #include "../Common/CListCtrl/CVtListCtrlEx/VtListCtrlEx.h"
 #include "../Common/ResizeCtrl.h"
 #include "../Common/ControlSplitter.h"
+#include "../Common/Json/rapid_json/json.h"
+
+enum NODE_TYPE
+{
+	node_collection = 0,
+	node_folder,
+	node_request,
+};
+
+class CApiNode
+{
+public:
+	int			type;	//collection, folder, request
+	CString		name;
+	CString		desc;
+	CString		method;
+	CString		url;
+	CString		header;
+	CString		body;
+};
 
 
 // CRestmanDlg 대화 상자
@@ -30,6 +50,22 @@ public:
 	enum { IDD = IDD_RESTMAN_DIALOG };
 #endif
 
+protected:
+	enum TIMER_ID
+	{
+		timer_find_json_files = 0,
+	};
+
+	void			find_json_files();
+	void			load_json(CString json_path);
+
+	void			load_traverse(const rapidjson::Value& v, const CString& indent = _T(""));
+
+	//현재 구조를 json 파일로 저장한다. json_path = _T("")이면 data/api.json에 덮어쓴다.
+	void			save_json(CString json_path = _T(""));
+
+	void			release_node_data(HTREEITEM hItem = NULL);
+
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 지원입니다.
 
@@ -47,7 +83,7 @@ protected:
 public:
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedCancel();
-	CSCTreeCtrl m_tree_api;
+	CSCTreeCtrl m_tree;
 	CControlSplitter m_splitter;
 	CSCComboBox m_combo_verb;
 	CSCEdit m_edit_url;
@@ -59,4 +95,6 @@ public:
 	afx_msg void OnTreeMenuAddRequest();
 	afx_msg void OnTreeMenuAddCollection();
 	afx_msg void OnBnClickedButtonSend();
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg void OnTvnSelchangedTreeApi(NMHDR* pNMHDR, LRESULT* pResult);
 };

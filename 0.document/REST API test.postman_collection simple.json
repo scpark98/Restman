@@ -1,0 +1,37 @@
+{
+	"info": {
+		"name": "REST API test",
+		"description": "# 🚀 Get started here"
+	},
+	"item": [
+		{
+			"name": "Lmm 3.0 SE",
+			"item": [
+				{
+					"name": "RootAPI",
+					"request": {
+						"url": "https://tss.linkmemine.com:443/lmm/api/v1.0"
+					}
+				}
+			]
+		},
+		{
+			"name": "Lmm 1.0",
+			"item": [
+				{
+					"name": "get agent version",
+					"request": {
+						"url": "https://admin.linkmemine.com/download/agent/program_kr/version.html",
+						"description": "This is a GET request and it is used to \"get\" data from an endpoint."
+					}
+				},
+				{
+					"name": "checklist.json",
+					"request": {
+						"url": "https://admin.linkmemine.com/download/checklist.json"
+					}
+				}
+			]
+		}
+	]
+}
