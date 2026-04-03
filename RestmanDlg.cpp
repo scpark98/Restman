@@ -11,6 +11,9 @@
 #include <wininet.h>
 #pragma comment(lib, "wininet.lib")
 
+#include <fstream>
+#include "Common/Json/rapid_json/json.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -68,6 +71,7 @@ void CRestmanDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_URL, m_edit_url);
 	DDX_Control(pDX, IDC_BUTTON_SEND, m_button_send);
 	DDX_Control(pDX, IDC_LIST_PARAMS, m_list_params);
+	DDX_Control(pDX, IDC_RICH, m_rich);
 }
 
 BEGIN_MESSAGE_MAP(CRestmanDlg, CDialogEx)
@@ -82,9 +86,15 @@ BEGIN_MESSAGE_MAP(CRestmanDlg, CDialogEx)
 	ON_COMMAND(ID_TREE_MENU_ADD_REQUEST, &CRestmanDlg::OnTreeMenuAddRequest)
 	ON_COMMAND(ID_TREE_MENU_ADD_COLLECTION, &CRestmanDlg::OnTreeMenuAddCollection)
 	ON_REGISTERED_MESSAGE(Message_CSCTreeCtrl, &CRestmanDlg::on_message_CSCTreeCtrl)
+	ON_REGISTERED_MESSAGE(Message_CGdiButton, &CRestmanDlg::on_message_CGdiButton)
 	ON_BN_CLICKED(IDC_BUTTON_SEND, &CRestmanDlg::OnBnClickedButtonSend)
 	ON_WM_TIMER()
 	ON_NOTIFY(TVN_SELCHANGED, IDC_TREE_API, &CRestmanDlg::OnTvnSelchangedTreeApi)
+	ON_NOTIFY(NM_DBLCLK, IDC_TREE_API, &CRestmanDlg::OnNMDblclkTreeApi)
+	ON_NOTIFY(TVN_BEGINLABELEDIT, IDC_TREE_API, &CRestmanDlg::OnTvnBeginLabelEditTreeApi)
+	ON_NOTIFY(TVN_ENDLABELEDIT, IDC_TREE_API, &CRestmanDlg::OnTvnEndLabelEditTreeApi)
+	ON_EN_CHANGE(IDC_EDIT_URL, &CRestmanDlg::OnEnChangeEditUrl)
+	ON_EN_UPDATE(IDC_EDIT_URL, &CRestmanDlg::OnEnUpdateEditUrl)
 END_MESSAGE_MAP()
 
 
@@ -130,6 +140,7 @@ BOOL CRestmanDlg::OnInitDialog()
 	m_resize.Add(IDC_EDIT_URL, 0, 0, 100, 0);
 	m_resize.Add(IDC_BUTTON_SEND, 100, 0, 0, 0);
 	m_resize.Add(IDC_LIST_PARAMS, 0, 0, 100, 0);
+	m_resize.Add(IDC_RICH, 0, 0, 100, 100);
 
 	int min_size = 60;
 	m_splitter.set_type(CControlSplitter::CS_VERT, true, Gdiplus::Color::LightGray);
@@ -137,6 +148,7 @@ BOOL CRestmanDlg::OnInitDialog()
 	m_splitter.AddToBottomOrRightCtrls(IDC_COMBO_VERB, 0, 0, SPF_LEFT);
 	m_splitter.AddToBottomOrRightCtrls(IDC_EDIT_URL, min_size, 0, SPF_LEFT | SPF_RIGHT);
 	m_splitter.AddToBottomOrRightCtrls(IDC_LIST_PARAMS, 0, 0, SPF_LEFT | SPF_RIGHT);
+	m_splitter.AddToBottomOrRightCtrls(IDC_RICH, 0, 0, SPF_LEFT | SPF_RIGHT);
 
 	m_combo_verb.set_font_size(9);
 	m_combo_verb.set_line_height(14);
@@ -148,10 +160,14 @@ BOOL CRestmanDlg::OnInitDialog()
 
 	m_edit_url.set_text_color(Gdiplus::Color::RoyalBlue);
 	m_edit_url.set_back_color(Gdiplus::Color::White);
-	m_edit_url.set_line_align(DT_BOTTOM);
+	//m_edit_url.set_back_color_disabled();
+	m_edit_url.set_line_align(DT_VCENTER);
 	m_edit_url.set_auto_font_size(true, 0.60f);
 	m_edit_url.set_dim_text(_T("Input Url here..."));
-	m_edit_url.set_text(_T("https://admin.linkmemine.com/lmm/api/v1.0/"));
+	//m_edit_url.set_border_color(Gdiplus::Color(255, 232, 232, 232));
+	m_edit_url.set_border_color_on_active(Gdiplus::Color::RoyalBlue);
+	m_edit_url.set_draw_border();
+
 
 	m_list_params.SetExtendedStyle(LVS_EX_GRIDLINES | LVS_EX_FLATSB);
 	m_list_params.set_headings(_T("Key,200;Value,200;Description,200"));
@@ -164,8 +180,16 @@ BOOL CRestmanDlg::OnInitDialog()
 	m_list_params.allow_edit();
 	m_list_params.add_item(_T("key name"));
 
-	m_tree.set_imagelist(IDI_EMPTY, IDI_FOLDER_COLLAPSED, IDI_FOLDER_EXPANDED);
+	m_tree.set_imagelist(IDI_COLLECTION, IDI_FOLDER, IDI_DOWNLOAD);
 	//m_tree.load(get_exe_directory() + _T("\\api_data.txt"));
+
+	m_button_send.set_round(4, Gdiplus::Color::Gray, get_sys_color(COLOR_3DFACE));
+	m_button_send.set_menu_items(_T("Request Download"));
+
+	m_rich.set_font_name(_T("Consolas"));
+	m_rich.set_font_size(10);
+	m_rich.show_time_info(false);
+	m_rich.set_auto_scroll(true);
 
 	//tree에서 json을 load하려면 Collection, Folder, APIs 들을 읽어온 후
 	//해당 노드에 데이터를 어떻게 저장할 것인지가 명확해야 한다.
@@ -176,7 +200,11 @@ BOOL CRestmanDlg::OnInitDialog()
 
 	RestoreWindowPosition(&theApp, this);
 
-	SetTimer(timer_find_json_files, 1000, NULL);
+	//set callback functions
+	m_tree.set_function_set_node_data_on_loading(function_set_node_data_on_loading);
+	m_tree.set_function_set_node_value_on_saving(function_set_node_value_on_saving);
+
+	m_tree.load_tree_from_json_file(get_exe_directory() + _T("\\data\\api.json"));
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
@@ -326,19 +354,28 @@ void CRestmanDlg::OnNMRClickTreeApi(NMHDR* pNMHDR, LRESULT* pResult)
 void CRestmanDlg::OnTreeMenuAddCollection()
 {
 	HTREEITEM parent = m_tree.GetSelectedItem();
-	m_tree.InsertItem(_T("New collection"), parent);
-	//TV_INSERTSTRUCT tvInsert;
-	//tvInsert.item.mask = TVIF_TEXT;
-	//tvInsert.hInsertAfter = TVI_LAST;
-	//tvInsert.hParent = parent;
-	//tvInsert.item.pszText = _T("New collection");
-	//m_tree.InsertItem(&tvInsert);
+	HTREEITEM hItem = m_tree.InsertItem(_T("New collection"), parent);
+
+	if (hItem)
+	{
+		CApiNode* data = new CApiNode;
+		data->type = node_collection;
+		data->name = _T("New collection");
+		m_tree.SetItemData(hItem, (DWORD_PTR)data);
+	}
 }
 
 void CRestmanDlg::OnTreeMenuAddFolder()
 {
 	HTREEITEM parent = m_tree.GetSelectedItem();
 	HTREEITEM hItem = m_tree.InsertItem(_T("New folder"), 1, 1, parent);
+	if (hItem)
+	{
+		CApiNode* data = new CApiNode;
+		data->type = node_folder;
+		data->name = _T("New folder");
+		m_tree.SetItemData(hItem, (DWORD_PTR)data);
+	}
 
 	m_tree.Expand(parent, TVE_EXPAND);
 }
@@ -346,7 +383,14 @@ void CRestmanDlg::OnTreeMenuAddFolder()
 void CRestmanDlg::OnTreeMenuAddRequest()
 {
 	HTREEITEM parent = m_tree.GetSelectedItem();
-	m_tree.InsertItem(_T("New request"), 2, 2, parent);
+	HTREEITEM hItem = m_tree.InsertItem(_T("New request"), 2, 2, parent);
+	if (hItem)
+	{
+		CApiNode* data = new CApiNode;
+		data->type = node_request;
+		data->name = _T("New request");
+		m_tree.SetItemData(hItem, (DWORD_PTR)data);
+	}
 }
 
 LRESULT CRestmanDlg::on_message_CSCTreeCtrl(WPARAM wParam, LPARAM lParam)
@@ -364,11 +408,23 @@ LRESULT CRestmanDlg::on_message_CSCTreeCtrl(WPARAM wParam, LPARAM lParam)
 void CRestmanDlg::OnBnClickedButtonSend()
 {
 	CString full_url = m_edit_url.get_text();
-	CString verb = m_combo_verb.get_cur_text();
+	CString verb = m_combo_verb.get_cur_sel_text();
+
+	m_rich.add(blue, _T("request... verb = %s, url = %s\n"), verb, full_url);
+	Wait(10);
 
 	CRequestUrlParams param(full_url, verb);
-	param.timeout_ms = 5000;
+	//param.timeout_ms = 5000;
 	request_url(&param);
+
+	if (param.status == HTTP_STATUS_OK)
+	{
+		m_rich.add(green, _T("result = %s\n"), param.result);
+	}
+	else
+	{
+		m_rich.add(red, _T("failed. status = %d, result = %s\n"), param.status, param.result);
+	}
 }
 
 void CRestmanDlg::OnTimer(UINT_PTR nIDEvent)
@@ -379,6 +435,11 @@ void CRestmanDlg::OnTimer(UINT_PTR nIDEvent)
 		KillTimer(timer_find_json_files);
 
 		find_json_files();
+	}
+	else if (nIDEvent == timer_auto_save)
+	{
+		KillTimer(timer_auto_save);
+		save_json();
 	}
 
 	CDialogEx::OnTimer(nIDEvent);
@@ -448,15 +509,128 @@ void CRestmanDlg::load_traverse(const rapidjson::Value& v, const CString& indent
 	*/
 }
 
+#if 0
+// JSON 객체 1개를 Tree 노드로 재귀 복원
+static HTREEITEM JsonValueToTreeItem(
+	CTreeCtrl& tree,
+	const rapidjson::Value& nodeValue,
+	HTREEITEM hParent,
+	HTREEITEM hInsertAfter,
+	HTREEITEM& hSelectedItem)
+{
+	if (!nodeValue.IsObject())
+		return NULL;
+
+	CApiNode* node = new CApiNode;
+	bool checked = false;
+	bool expanded = false;
+	bool selected = false;
+
+	if (nodeValue.HasMember("type") && nodeValue["type"].IsInt())
+		node->type = nodeValue["type"].GetInt();
+	if (nodeValue.HasMember("name") && nodeValue["name"].IsString())
+		node->name = nodeValue["name"].GetCString();
+	if (nodeValue.HasMember("description") && nodeValue["description"].IsString())
+		node->desc = nodeValue["description"].GetCString();
+	if (nodeValue.HasMember("method") && nodeValue["method"].IsString())
+		node->method = nodeValue["method"].GetCString();
+	if (nodeValue.HasMember("url") && nodeValue["url"].IsString())
+		node->url = nodeValue["url"].GetCString();
+	if (nodeValue.HasMember("header") && nodeValue["header"].IsString())
+		node->header = nodeValue["header"].GetCString();
+	if (nodeValue.HasMember("body") && nodeValue["body"].IsString())
+		node->body = nodeValue["body"].GetCString();
+
+	// 노드 삽입
+	HTREEITEM hItem = tree.InsertItem(node->name, hParent, hInsertAfter);
+	if (hItem == NULL)
+		return NULL;
+
+	tree.SetItemData(hItem, (DWORD_PTR)node);
+	if (selected)
+		hSelectedItem = hItem;
+
+	// children 재귀 처리
+	if (nodeValue.HasMember("nodes") && nodeValue["nodes"].IsArray())
+	{
+		const rapidjson::Value& children = nodeValue["nodes"];
+		for (rapidjson::SizeType i = 0; i < children.Size(); ++i)
+		{
+			JsonValueToTreeItem(tree, children[i], hItem, TVI_LAST, hSelectedItem);
+		}
+	}
+
+	// 자식이 모두 들어간 뒤 확장
+	if (expanded)
+		tree.Expand(hItem, TVE_EXPAND);
+
+	return hItem;
+}
+
+// JSON Document를 TreeCtrl에 복원
+static bool load_tree_from_json_document(CTreeCtrl& tree, const rapidjson::Document& doc)
+{
+	if (!doc.IsArray())
+		return false;
+
+	tree.DeleteAllItems();
+
+	HTREEITEM hSelectedItem = NULL;
+
+	for (rapidjson::SizeType i = 0; i < doc.Size(); ++i)
+	{
+		JsonValueToTreeItem(tree, doc[i], NULL, TVI_LAST, hSelectedItem);
+	}
+
+	if (hSelectedItem != NULL)
+		tree.SelectItem(hSelectedItem);
+
+	return true;
+}
+
+// 파일 전체 읽기
+static bool ReadFileToString(const CString& filePath, std::string& outText)
+{
+#ifdef UNICODE
+	CW2A pathA(filePath, CP_ACP);
+	std::ifstream ifs(pathA, std::ios::binary);
+#else
+	std::ifstream ifs(filePath, std::ios::binary);
+#endif
+
+	if (!ifs.is_open())
+		return false;
+
+	std::ostringstream oss;
+	oss << ifs.rdbuf();
+	outText = oss.str();
+
+	return true;
+}
+
+// JSON 파일에서 TreeCtrl 복원
+static bool load_tree_from_json_file(CSCTreeCtrl& tree, const CString& filePath)
+{
+	std::string jsonText;
+	if (!ReadFileToString(filePath, jsonText))
+		return false;
+
+	rapidjson::Document doc;
+	rapidjson::ParseResult ok = doc.Parse(jsonText.c_str());
+
+	if (!ok)
+		return false;
+
+	return load_tree_from_json_document(tree, doc);
+}
+#endif 
+
 void CRestmanDlg::load_json(CString json_path)
 {
-	//Json json;
+	//load_tree_from_json_file(m_tree, json_path);
 
-	//if (json.load(json_path) == false)
-	//	return;
-
-	//load_traverse(json.doc);
-#if 1
+	m_tree.expand_all();
+#if 0
 	int i;
 	Json json;
 	
@@ -466,7 +640,7 @@ void CRestmanDlg::load_json(CString json_path)
 	CString all_json = json.get_all_data();
 
 	std::deque<CString> lines;
-	get_token_string(all_json, lines, _T("\n"));
+	get_token_str(all_json, lines, _T("\n"));
 
 	auto node = new CApiNode();
 	bool is_collection = true;
@@ -580,16 +754,98 @@ void CRestmanDlg::load_json(CString json_path)
 	}
 #endif
 }
+#if 0
+rapidjson::Value tree_item_to_json_value(CSCTreeCtrl& tree, HTREEITEM hItem, rapidjson::Document::AllocatorType& alloc)
+{
+	rapidjson::Value node(rapidjson::kObjectType);
+	CString text = tree.GetItemText(hItem);
+
+	//프로젝트마다 data 구조가 다르므로 이를 메인의 콜백함수로 처리하도록 한다면
+	//CSCTreeCtrl에 범용 json 저장 코드를 넣을 수 있다.
+	CApiNode* data = (CApiNode*)tree.GetItemData(hItem);
+
+	if (data)
+	{
+		node.AddMember("type", data->type, alloc);
+		node.AddMember("name", rapidjson::Value(CString2string(text), alloc).Move(), alloc);
+		//node.AddMember(rapidjson::Value("name", alloc).Move(), CString2string(text), alloc);	//UXStudio에서는 이렇게 저장했으나 여기서는 에러발생함. rapidjson::Value type이 달라서 그럴수도 있음.
+		node.AddMember("description", rapidjson::Value(CString2string(data->desc), alloc).Move(), alloc);
+		if (data->type == node_request)
+		{
+			node.AddMember("method", rapidjson::Value(CString2string(data->method), alloc).Move(), alloc);
+			node.AddMember("url", rapidjson::Value(CString2string(data->url), alloc).Move(), alloc);
+			node.AddMember("header", rapidjson::Value(CString2string(data->header), alloc).Move(), alloc);
+			node.AddMember("body", rapidjson::Value(CString2string(data->body), alloc).Move(), alloc);
+		}
+	}
+	else
+	{
+		TRACE(_T("[error] tree item data is null. name = %s\n"), text);
+	}
+
+	rapidjson::Value children(rapidjson::kArrayType);
+
+	HTREEITEM hChild = tree.GetChildItem(hItem);
+	while (hChild != NULL)
+	{
+		children.PushBack(tree_item_to_json_value(tree, hChild, alloc), alloc);
+		hChild = tree.GetNextSiblingItem(hChild);
+	}
+
+	if (!children.Empty())
+		node.AddMember("nodes", children, alloc);
+
+	return node;
+}
+
+// 트리 전체를 Document로 생성
+void tree_to_json_document(CSCTreeCtrl& tree, rapidjson::Document& doc)
+{
+	doc.SetArray();
+	rapidjson::Document::AllocatorType& alloc = doc.GetAllocator();
+
+	HTREEITEM hRoot = tree.GetRootItem();
+	while (hRoot != NULL)
+	{
+		doc.PushBack(tree_item_to_json_value(tree, hRoot, alloc), alloc);
+		hRoot = tree.GetNextSiblingItem(hRoot);
+	}
+}
+
+bool save_tree_to_json_file(CSCTreeCtrl& tree, const CString& filePath)
+{
+	rapidjson::Document doc;
+	tree_to_json_document(tree, doc);
+
+	rapidjson::StringBuffer buffer;
+	rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+	writer.SetIndent(' ', 4);
+	doc.Accept(writer);
+
+#ifdef UNICODE
+	CW2A pathA(filePath, CP_ACP);
+	std::ofstream ofs(pathA, std::ios::binary);
+#else
+	std::ofstream ofs(filePath, std::ios::binary);
+#endif
+
+	if (!ofs.is_open())
+		return false;
+
+	ofs.write(buffer.GetString(), buffer.GetSize());
+	return ofs.good();
+}
+#endif
 
 //현재 구조를 json 파일로 저장한다. json_path = _T("")이면 data/api.json에 덮어쓴다.
 //현재는 개발단계이므로 api.json에 덮어쓰지 않고 data/saved/api_saved.json에 따로 저장한다.
 void CRestmanDlg::save_json(CString json_path)
 {
 	if (json_path.IsEmpty())
-		json_path.Format(_T("%s\\data\\saved\\api_saved.json"), get_exe_directory());
+		json_path.Format(_T("%s\\data\\api.json"), get_exe_directory());
 
-	HTREEITEM hItem = m_tree.GetRootItem();
-
+	//save_tree_to_json_file(m_tree, json_path);
+	m_tree.save_tree_to_json_file(json_path);
 	/*
 	Trace(_T("\n"));
 
@@ -658,23 +914,38 @@ void CRestmanDlg::save_json(CString json_path)
 	json.save(json_path);
 	*/
 
+	/*
 	int tab_count = 0;
 	CString label;
+	HTREEITEM hItem = m_tree.GetRootItem();
+
+	Json json;
+	rapidjson::Document::AllocatorType& allocator = json.doc.GetAllocator();
 
 	while (hItem)
 	{
+		label = m_tree.GetItemText(hItem);
+		Trace_only(duplicate_str(_T("\t"), tab_count));
+		Trace_only(_T("%s\n"), label);
+
 		CApiNode* data = (CApiNode*)m_tree.GetItemData(hItem);
+
+		//최상위 루트일 경우 "info" 항목을 먼저 기록한다.
+		if (tab_count == 0)
+		{
+			rapidjson::Value collection(rapidjson::kObjectType);
+			if (data)
+			{
+				collection.AddMember("name", CString2string(data->name), json.doc.GetAllocator());
+				collection.AddMember("description", CString2string(data->desc), json.doc.GetAllocator());
+			}
+			json.doc.AddMember("info", collection, json.doc.GetAllocator());
+		}
+
 		if (data)
 		{
 			//if (!data->name.IsEmpty())
-
 		}
-
-		label = m_tree.GetItemText(hItem);
-
-		Trace_only(make_string(_T("\t"), tab_count));
-
-		Trace_only(_T("%s\n"), label);
 
 		//child가 있다면 child로 이동하고
 		if (m_tree.ItemHasChildren(hItem))
@@ -715,12 +986,12 @@ void CRestmanDlg::save_json(CString json_path)
 			}
 		}
 	}
+	*/
 }
 
 void CRestmanDlg::OnTvnSelchangedTreeApi(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
-	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	HTREEITEM hItem = pNMTreeView->itemNew.hItem;
 	CApiNode* data = (CApiNode*)m_tree.GetItemData(hItem);
 	if (data)
@@ -739,4 +1010,174 @@ void CRestmanDlg::OnTvnSelchangedTreeApi(NMHDR* pNMHDR, LRESULT* pResult)
 		//}
 	}
 	*pResult = 0;
+}
+
+void CRestmanDlg::OnNMDblclkTreeApi(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	DWORD dwPos = GetMessagePos();
+	CPoint pt(GET_X_LPARAM(dwPos), GET_Y_LPARAM(dwPos));
+	m_tree.ScreenToClient(&pt);
+
+	UINT nFlags = 0;
+	HTREEITEM hItem = m_tree.HitTest(pt, &nFlags);
+
+	if (hItem)
+	{
+		CApiNode* data = (CApiNode*)m_tree.GetItemData(hItem);
+		if (data)
+		{
+			m_edit_url.set_text(data->url);
+			m_combo_verb.SelectString(-1, data->method);
+
+			m_edit_url.EnableWindow(data->type == node_request);
+			m_combo_verb.EnableWindow(data->type == node_request);
+
+			OnBnClickedButtonSend();
+		}
+	}
+
+	*pResult = 0;
+}
+
+LRESULT CRestmanDlg::on_message_CGdiButton(WPARAM wParam, LPARAM lParam)
+{
+	CGdiButtonMessage* msg = (CGdiButtonMessage*)wParam;
+	if (msg->pThis == &m_button_send)
+	{
+		TRACE(_T("menu button clicked, menu caption = %s\n"), msg->text);
+		if (msg->text == _T("Request Download"))
+		{
+			CString full_url = m_edit_url.get_text();
+			CString verb = m_combo_verb.get_cur_sel_text();
+			CString target = get_known_folder(FOLDERID_Downloads) + _T("\\") + get_part(full_url, fn_name);
+
+			m_rich.add(-1, _T("request file download. url = %s, local file = %s\n"), verb, full_url, target);
+			Wait(10);
+
+			CRequestUrlParams param(full_url, verb);
+			param.local_file_path = target;
+			request_url(&param);
+
+			if (param.status == HTTP_STATUS_OK)
+			{
+				if (param.local_file_path.IsEmpty() == false)
+				{
+					if (PathFileExists(param.local_file_path))
+						m_rich.add(green, _T("download success. local file = %s\n\n"), param.local_file_path);
+					else
+						m_rich.add(red, _T("status is ok, but download failed. result = %s. local file = %s\n"), param.result, param.local_file_path);
+				}
+				else
+				{
+					m_rich.add(green, _T("result = %s\n"), param.result);
+				}
+			}
+			else
+			{
+				m_rich.add(red, _T("failed. status = %d, result = %s\n"), param.status, param.result);
+			}
+		}
+	}
+
+	return 0;
+}
+
+//CSCTreeCtrl에서 json을 load, save할 때 node data는 프로젝트마다 모두 다를 수 있다.
+//따라서 CSCTreeCtrl에서는 기본적인 json 파일 load, save는 범용으로 처리하지만
+//node data를 어떤 형태로 불러오고 어떤 형태로 저장하는 것은 main에 정의한 이 콜백함수를 사용해야 한다.
+//nodeValue에서 node 정보를 추출하고 tree에 InsertItem()까지 한 후 node 주소를 넘겨준다.
+HTREEITEM CRestmanDlg::function_set_node_data_on_loading(CTreeCtrl* pTree, DWORD** node_data, const rapidjson::Value& nodeValue, HTREEITEM hParent, HTREEITEM hInsertAfter)
+{
+	CApiNode* node = new CApiNode;
+
+	if (nodeValue.HasMember("type") && nodeValue["type"].IsInt())
+		node->type = nodeValue["type"].GetInt();
+	if (nodeValue.HasMember("name") && nodeValue["name"].IsString())
+		node->name = nodeValue["name"].GetCString();
+	if (nodeValue.HasMember("description") && nodeValue["description"].IsString())
+		node->desc = nodeValue["description"].GetCString();
+	if (nodeValue.HasMember("method") && nodeValue["method"].IsString())
+		node->method = nodeValue["method"].GetCString();
+	if (nodeValue.HasMember("url") && nodeValue["url"].IsString())
+		node->url = nodeValue["url"].GetCString();
+	if (nodeValue.HasMember("header") && nodeValue["header"].IsString())
+		node->header = nodeValue["header"].GetCString();
+	if (nodeValue.HasMember("body") && nodeValue["body"].IsString())
+		node->body = nodeValue["body"].GetCString();
+
+	// 노드 삽입
+	HTREEITEM hItem = pTree->InsertItem(node->name, node->type, node->type, hParent, hInsertAfter);
+	if (hItem == NULL)
+		return NULL;
+
+	*node_data = (DWORD*)node;
+
+	return hItem;
+}
+
+bool CRestmanDlg::function_set_node_value_on_saving(CTreeCtrl* pTree, HTREEITEM hItem, rapidjson::Value& nodeValue, rapidjson::Document::AllocatorType& alloc)
+{
+	CString text = pTree->GetItemText(hItem);
+	CApiNode* data = (CApiNode*)pTree->GetItemData(hItem);
+
+	if (data)
+	{
+		nodeValue.AddMember("type", data->type, alloc);
+		nodeValue.AddMember("name", rapidjson::Value(CString2string(data->name), alloc).Move(), alloc);
+		//nodeValue.AddMember(rapidjson::Value("name", alloc).Move(), CString2string(text), alloc);	//UXStudio에서는 이렇게 저장했으나 여기서는 에러발생함. rapidjson::Value type이 달라서 그럴수도 있음.
+		nodeValue.AddMember("description", rapidjson::Value(CString2string(data->desc), alloc).Move(), alloc);
+		if (data->type == node_request)
+		{
+			nodeValue.AddMember("method", rapidjson::Value(CString2string(data->method), alloc).Move(), alloc);
+			nodeValue.AddMember("url", rapidjson::Value(CString2string(data->url), alloc).Move(), alloc);
+			nodeValue.AddMember("header", rapidjson::Value(CString2string(data->header), alloc).Move(), alloc);
+			nodeValue.AddMember("body", rapidjson::Value(CString2string(data->body), alloc).Move(), alloc);
+		}
+	}
+	else
+	{
+		TRACE(_T("[error] tree item data is null. name = %s\n"), text);
+	}
+
+	return true;
+}
+
+void CRestmanDlg::OnTvnBeginLabelEditTreeApi(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMTVDISPINFO pTVDispInfo = reinterpret_cast<LPNMTVDISPINFO>(pNMHDR);
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	*pResult = 0;
+}
+
+void CRestmanDlg::OnTvnEndLabelEditTreeApi(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMTVDISPINFO pTVDispInfo = reinterpret_cast<LPNMTVDISPINFO>(pNMHDR);
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	HTREEITEM hItem = m_tree.get_recent_edit_item();
+	if (hItem)
+	{
+		CApiNode* data = (CApiNode*)m_tree.GetItemData(hItem);
+		data->name = m_tree.GetItemText(hItem);
+	}
+
+	*pResult = 0;
+}
+
+void CRestmanDlg::OnEnChangeEditUrl()
+{
+	KillTimer(timer_auto_save);
+
+	HTREEITEM hItem = m_tree.GetSelectedItem();
+
+	if (!hItem)
+		return;
+
+	CApiNode* data = (CApiNode*)m_tree.GetItemData(hItem);
+	data->url = m_edit_url.get_text();
+	trace(data->url);
+	SetTimer(timer_auto_save, 500, NULL);
+}
+
+void CRestmanDlg::OnEnUpdateEditUrl()
+{
 }

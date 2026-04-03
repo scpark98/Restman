@@ -42,15 +42,6 @@
     <ClInclude Include="pch.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common\CMenu\SCMenuBar\SCMenuBar.h">
-      <Filter>Common\SCMenuBar</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\CMenu\SCMenuBar\SCMenuButton.h">
-      <Filter>Common\SCMenuBar</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\CMenu\SCMenuBar\SCMenu.h">
-      <Filter>Common\SCMenuBar</Filter>
-    </ClInclude>
     <ClInclude Include="..\Common\ResizeCtrl.h">
       <Filter>Common</Filter>
     </ClInclude>
@@ -61,9 +52,6 @@
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\Functions.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\GdiplusBitmap.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\MemoryDC.h">
@@ -117,6 +105,21 @@
     <ClInclude Include="..\Common\CComboBox\SCComboBox\SCComboBox.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="..\Common\SCGdiplusBitmap.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\CMenu\CSCMenuBar\SCMenuBar.h">
+      <Filter>Common\SCMenuBar</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\CMenu\CSCMenuBar\SCMenuButton.h">
+      <Filter>Common\SCMenuBar</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\CMenu\CSCMenuBar\SCMenu.h">
+      <Filter>Common\SCMenuBar</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\CEdit\RichEditCtrlEx\RichEditCtrlEx.h">
+      <Filter>Common\VtListCtrlEx</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Restman.cpp">
@@ -128,15 +131,6 @@
     <ClCompile Include="pch.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="..\Common\CMenu\SCMenuBar\SCMenuBar.cpp">
-      <Filter>Common\SCMenuBar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Common\CMenu\SCMenuBar\SCMenuButton.cpp">
-      <Filter>Common\SCMenuBar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Common\CMenu\SCMenuBar\SCMenu.cpp">
-      <Filter>Common\SCMenuBar</Filter>
-    </ClCompile>
     <ClCompile Include="..\Common\ResizeCtrl.cpp">
       <Filter>Common</Filter>
     </ClCompile>
@@ -147,9 +141,6 @@
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="..\Common\Functions.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Common\GdiplusBitmap.cpp">
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="..\Common\CButton\GdiButton\GdiButton.cpp">
@@ -197,6 +188,21 @@
     <ClCompile Include="..\Common\CComboBox\SCComboBox\SCComboBox.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="..\Common\SCGdiplusBitmap.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\CMenu\CSCMenuBar\SCMenuButton.cpp">
+      <Filter>Common\SCMenuBar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\CMenu\CSCMenuBar\SCMenu.cpp">
+      <Filter>Common\SCMenuBar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\CMenu\CSCMenuBar\SCMenuBar.cpp">
+      <Filter>Common\SCMenuBar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\CEdit\RichEditCtrlEx\RichEditCtrlEx.cpp">
+      <Filter>Common\VtListCtrlEx</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Restman.rc">
@@ -222,6 +228,15 @@
       <Filter>리소스 파일</Filter>
     </Image>
     <Image Include="res\images\empty.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="res\images\collection.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="res\images\download.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="res\images\folder_circle.ico">
       <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>

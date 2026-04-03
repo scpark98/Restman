@@ -4,15 +4,16 @@
 
 #pragma once
 
-#include "../Common/CTreeCtrl/SCTreeCtrl/SCTreeCtrl.h"
-#include "../Common/CButton/GdiButton/GdiButton.h"
-#include "../Common/CComboBox/SCComboBox/SCComboBox.h"
-#include "../Common/CEdit/SCEdit/SCEdit.h"
-#include "../Common/CEdit/RichEditCtrlEx/RichEditCtrlEx.h"
-#include "../Common/CListCtrl/CVtListCtrlEx/VtListCtrlEx.h"
-#include "../Common/ResizeCtrl.h"
-#include "../Common/ControlSplitter.h"
-#include "../Common/Json/rapid_json/json.h"
+#include "Common/CTreeCtrl/SCTreeCtrl/SCTreeCtrl.h"
+#include "Common/CButton/GdiButton/GdiButton.h"
+#include "Common/CComboBox/SCComboBox/SCComboBox.h"
+#include "Common/CEdit/SCEdit/SCEdit.h"
+#include "Common/CEdit/RichEditCtrlEx/RichEditCtrlEx.h"
+#include "Common/CListCtrl/CVtListCtrlEx/VtListCtrlEx.h"
+#include "Common/ResizeCtrl.h"
+#include "Common/ControlSplitter.h"
+#include "Common/Json/rapid_json/json.h"
+#include <functional>
 
 enum NODE_TYPE
 {
@@ -24,7 +25,7 @@ enum NODE_TYPE
 class CApiNode
 {
 public:
-	int			type;	//collection, folder, request
+	int			type = node_collection;	//collection, folder, request
 	CString		name;
 	CString		desc;
 	CString		method;
@@ -44,6 +45,14 @@ public:
 	CResizeCtrl		m_resize;
 
 	LRESULT			on_message_CSCTreeCtrl(WPARAM wParam, LPARAM lParam);
+	LRESULT			on_message_CGdiButton(WPARAM wParam, LPARAM lParam);
+
+	//CSCTreeCtrl에서 json을 load, save할 때 node data는 프로젝트마다 모두 다를 수 있다.
+	//따라서 CSCTreeCtrl에서는 기본적인 json 파일 load, save는 범용으로 처리하지만
+	//node data를 어떤 형태로 불러오고 어떤 형태로 저장하는 것은 main에 정의한 이 콜백함수에서 처리한다.
+	//nodeValue에서 node 정보를 추출하고 tree에 InsertItem()까지 한 후 node data 주소를 넘겨준다.
+	static HTREEITEM function_set_node_data_on_loading(CTreeCtrl* pTree, DWORD** node_data, const rapidjson::Value& nodeValue, HTREEITEM hParent, HTREEITEM hInsertAfter);
+	static bool function_set_node_value_on_saving(CTreeCtrl* pTree, HTREEITEM hItem, rapidjson::Value& nodeValue, rapidjson::Document::AllocatorType& alloc);
 
 // 대화 상자 데이터입니다.
 #ifdef AFX_DESIGN_TIME
@@ -54,6 +63,7 @@ protected:
 	enum TIMER_ID
 	{
 		timer_find_json_files = 0,
+		timer_auto_save,
 	};
 
 	void			find_json_files();
@@ -97,4 +107,10 @@ public:
 	afx_msg void OnBnClickedButtonSend();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnTvnSelchangedTreeApi(NMHDR* pNMHDR, LRESULT* pResult);
+	CRichEditCtrlEx m_rich;
+	afx_msg void OnNMDblclkTreeApi(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnTvnBeginLabelEditTreeApi(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnTvnEndLabelEditTreeApi(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnEnChangeEditUrl();
+	afx_msg void OnEnUpdateEditUrl();
 };
