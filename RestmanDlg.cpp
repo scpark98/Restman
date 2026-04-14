@@ -95,6 +95,10 @@ BEGIN_MESSAGE_MAP(CRestmanDlg, CDialogEx)
 	ON_NOTIFY(TVN_ENDLABELEDIT, IDC_TREE_API, &CRestmanDlg::OnTvnEndLabelEditTreeApi)
 	ON_EN_CHANGE(IDC_EDIT_URL, &CRestmanDlg::OnEnChangeEditUrl)
 	ON_EN_UPDATE(IDC_EDIT_URL, &CRestmanDlg::OnEnUpdateEditUrl)
+	ON_COMMAND(ID_TREE_MENU_CUT, &CRestmanDlg::OnTreeMenuCut)
+	ON_COMMAND(ID_TREE_MENU_COPY, &CRestmanDlg::OnTreeMenuCopy)
+	ON_COMMAND(ID_TREE_MENU_PASTE, &CRestmanDlg::OnTreeMenuPaste)
+	ON_COMMAND(ID_TREE_MENU_DELETE, &CRestmanDlg::OnTreeMenuDelete)
 END_MESSAGE_MAP()
 
 
@@ -151,8 +155,8 @@ BOOL CRestmanDlg::OnInitDialog()
 	m_splitter.AddToBottomOrRightCtrls(IDC_RICH, 0, 0, SPF_LEFT | SPF_RIGHT);
 
 	m_combo_verb.set_font_size(9);
-	m_combo_verb.set_line_height(14);
-	m_combo_verb.set_font_bold(FW_HEAVY);
+	m_combo_verb.set_line_height(13);
+	m_combo_verb.set_font_bold();
 	m_combo_verb.add(_T("GET"), Gdiplus::Color(18, 135, 63));
 	m_combo_verb.add(_T("POST"), Gdiplus::Color(182, 137, 32));
 	m_combo_verb.add(_T("PUT"), Gdiplus::Color(39, 109, 195));
@@ -181,6 +185,8 @@ BOOL CRestmanDlg::OnInitDialog()
 	m_list_params.add_item(_T("key name"));
 
 	m_tree.set_imagelist(IDI_COLLECTION, IDI_FOLDER, IDI_DOWNLOAD);
+	m_tree.set_use_drag_and_drop(true);
+	m_tree.set_use_rearrange_order(true);
 	//m_tree.load(get_exe_directory() + _T("\\api_data.txt"));
 
 	m_button_send.set_round(4, Gdiplus::Color::Gray, get_sys_color(COLOR_3DFACE));
@@ -420,10 +426,12 @@ void CRestmanDlg::OnBnClickedButtonSend()
 	if (param.status == HTTP_STATUS_OK)
 	{
 		m_rich.add(green, _T("result = %s\n"), param.result);
+		m_rich.add(darkblue, _T("elapsed : %ldms\n"), param.elapsed);
 	}
 	else
 	{
 		m_rich.add(red, _T("failed. status = %d, result = %s\n"), param.status, param.result);
+		m_rich.add(darkred, _T("elapsed : %ldms\n"), param.elapsed);
 	}
 }
 
@@ -1180,4 +1188,60 @@ void CRestmanDlg::OnEnChangeEditUrl()
 
 void CRestmanDlg::OnEnUpdateEditUrl()
 {
+}
+
+void CRestmanDlg::OnTreeMenuCut()
+{
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+}
+
+void CRestmanDlg::OnTreeMenuCopy()
+{
+	HTREEITEM hItem = m_tree.GetSelectedItem();
+
+	if (!hItem)
+		return;
+
+	m_clipboard_data = (CApiNode*)m_tree.GetItemData(hItem);
+}
+
+void CRestmanDlg::OnTreeMenuPaste()
+{
+	HTREEITEM parent = m_tree.GetSelectedItem();
+
+	if (!parent || !m_clipboard_data)
+		return;
+
+	if (m_clipboard_data->type == node_folder)
+	{
+		HTREEITEM hItem = m_tree.InsertItem(m_clipboard_data->name, 1, 1, parent);
+		if (hItem)
+		{
+			CApiNode* data = new CApiNode(*m_clipboard_data);
+			m_tree.SetItemData(hItem, (DWORD_PTR)data);
+		}
+	}
+	else
+	{
+		HTREEITEM hItem = m_tree.InsertItem(m_clipboard_data->name, 2, 2, parent);
+		if (hItem)
+		{
+			CApiNode* data = new CApiNode(*m_clipboard_data);
+			m_tree.SetItemData(hItem, (DWORD_PTR)data);
+		}
+	}
+
+	m_tree.Expand(parent, TVE_EXPAND);
+}
+
+void CRestmanDlg::OnTreeMenuDelete()
+{
+	HTREEITEM hItem = m_tree.GetSelectedItem();
+
+	if (!hItem)
+		return;
+
+	CApiNode* data = (CApiNode*)m_tree.GetItemData(hItem);
+	delete data;
+	m_tree.DeleteItem(hItem);
 }

@@ -52,7 +52,7 @@ public:
 	//node data를 어떤 형태로 불러오고 어떤 형태로 저장하는 것은 main에 정의한 이 콜백함수에서 처리한다.
 	//nodeValue에서 node 정보를 추출하고 tree에 InsertItem()까지 한 후 node data 주소를 넘겨준다.
 	static HTREEITEM function_set_node_data_on_loading(CTreeCtrl* pTree, DWORD** node_data, const rapidjson::Value& nodeValue, HTREEITEM hParent, HTREEITEM hInsertAfter);
-	static bool function_set_node_value_on_saving(CTreeCtrl* pTree, HTREEITEM hItem, rapidjson::Value& nodeValue, rapidjson::Document::AllocatorType& alloc);
+	static bool		function_set_node_value_on_saving(CTreeCtrl* pTree, HTREEITEM hItem, rapidjson::Value& nodeValue, rapidjson::Document::AllocatorType& alloc);
 
 // 대화 상자 데이터입니다.
 #ifdef AFX_DESIGN_TIME
@@ -65,6 +65,8 @@ protected:
 		timer_find_json_files = 0,
 		timer_auto_save,
 	};
+
+	CApiNode*		m_clipboard_data = nullptr;
 
 	void			find_json_files();
 	void			load_json(CString json_path);
@@ -113,4 +115,8 @@ public:
 	afx_msg void OnTvnEndLabelEditTreeApi(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnEnChangeEditUrl();
 	afx_msg void OnEnUpdateEditUrl();
+	afx_msg void OnTreeMenuCut();
+	afx_msg void OnTreeMenuCopy();
+	afx_msg void OnTreeMenuPaste();
+	afx_msg void OnTreeMenuDelete();
 };
